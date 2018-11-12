@@ -151,15 +151,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ConversaoLib.h" />
+    <ClInclude Include="ErrorLib.h" />
+    <ClInclude Include="ParseLib.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="TabelaLib.h" />
+    <ClInclude Include="Tokenizador.h" />
+    <ClInclude Include="Tradutor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ConversaoLib.cpp" />
+    <ClCompile Include="ErrorLib.cpp" />
+    <ClCompile Include="ParseLib.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TabelaLib.cpp" />
+    <ClCompile Include="Tokenizador.cpp" />
     <ClCompile Include="Tradutor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
