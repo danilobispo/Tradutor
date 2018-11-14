@@ -15,10 +15,13 @@ public:
 
 	std::vector<Tokenizador::TokensDaLinha> tokensCodigo;
 	bool isSectionData;
+	bool criouAcc;
 
 	std::stringstream codigoConvertido;
 	void verificaEConverteOperacao(std::string operacao);
 	void verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaLinha);
+	void criaAcumulador();
+	void criaAcumulador(std::string operacao);
 	void pulaLinhaDeCodigo();
 	std::string converteSection(std::string operando);
 	void showCodigoConvertido();

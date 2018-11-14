@@ -4,6 +4,7 @@
 
 ConversaoLib::ConversaoLib()
 {
+	// Inicializa a variável no construtor pois durante o loop ela pode assumir valores diferentes
 	isSectionData = false;
 }
 
@@ -64,6 +65,11 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 		case SECTION:
 			// Em nenhum caso, section tem mais de um operando, logo o primeiro deve ser data, bss ou text
 			ConversaoLib::codigoConvertido << converteSection(tokenDaLinha.operando[0]);
+			// Verificamos se já podemos colocar o acumulador(Variável global responsável pela grande maioria das operações)
+			// Se a section .data já foi criada
+			if (!criouAcc) {
+				ConversaoLib::criaAcumulador(tokenDaLinha.operando[0]);
+			}
 			break;
 		case SPACE:
 			break;
@@ -80,7 +86,7 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 // Adiciona pulo de linha ao final de cada instrução convertida
 void ConversaoLib::pulaLinhaDeCodigo()
 {
-	codigoConvertido << "\n";
+	ConversaoLib::codigoConvertido << "\n";
 }
 
 // Converte a section com base no operando(TEXT, DATA ou BSS)
@@ -88,8 +94,8 @@ std::string ConversaoLib::converteSection(std::string operando) {
 	if (operando == "text") {
 		return "section .text";
 	}
-	else if ((operando == "data" || operando == "bss") && !isSectionData) {
-		isSectionData = true;
+	else if ((operando == "data" || operando == "bss") && !ConversaoLib::isSectionData) {
+		ConversaoLib::isSectionData = true;
 		return "section .data";
 	}
 	else return "";
@@ -97,5 +103,14 @@ std::string ConversaoLib::converteSection(std::string operando) {
 
 // Função para debug 
 void ConversaoLib::showCodigoConvertido() {
-	std::cout << codigoConvertido.str();
+	std::cout << ConversaoLib::codigoConvertido.str();
+}
+
+void ConversaoLib::criaAcumulador(std::string operacao) {
+	pulaLinhaDeCodigo();
+	if (isSectionData && (operacao == "data" || operacao == "bss")) {
+		// Cria o acumulador embaixo da declaração de .data
+		ConversaoLib::codigoConvertido << "acc resw 2";
+		ConversaoLib::criouAcc = true;
+	}
 }
