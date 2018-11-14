@@ -30,6 +30,10 @@ enum opcodes {
 	STORE,
 	INPUT,
 	OUTPUT,
+	C_INPUT,
+	C_OUTPUT,
+	S_INPUT,
+	S_OUTPUT,
 	STOP
 };
 
