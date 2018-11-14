@@ -22,11 +22,14 @@ public:
 	void verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaLinha);
 	void criaAcumulador();
 	void criaAcumulador(std::string operacao);
+	int converteOperandoParaInteiro(std::string operando);
+	bool isOperandoNumeroInteiro(const std::string & str);	
 	void pulaLinhaDeCodigo();
-	std::string converteSection(std::string operando);
 	void showCodigoConvertido();
 	void verificaInstrucao(std::string instrucao);
 	void verificaDiretiva(std::string diretiva);
 	void converteAdd();
+	std::string converteSection(std::string operando);
+	std::string converteSpace(std::string label, std::string operando);
 };
 

@@ -72,6 +72,7 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 			}
 			break;
 		case SPACE:
+			ConversaoLib::codigoConvertido << converteSpace(tokenDaLinha.label, tokenDaLinha.operando[0]);
 			break;
 		case CONST:
 			break;
@@ -101,16 +102,38 @@ std::string ConversaoLib::converteSection(std::string operando) {
 	else return "";
 }
 
+std::string ConversaoLib::converteSpace(std::string label, std::string operando)
+{
+	int num;
+	if (isOperandoNumeroInteiro(operando)) { // Decimal
+		num = converteOperandoParaInteiro(operando);
+	}
+	else { // Hexadecimal
+		num = std::stoi(operando, nullptr, 16);
+	}
+
+	return label + ": resd " + std::to_string(num);	
+}
+
 // Função para debug 
 void ConversaoLib::showCodigoConvertido() {
 	std::cout << ConversaoLib::codigoConvertido.str();
 }
 
+// Escreve no arquivo de saída a declaração do acumulador
 void ConversaoLib::criaAcumulador(std::string operacao) {
 	pulaLinhaDeCodigo();
 	if (isSectionData && (operacao == "data" || operacao == "bss")) {
 		// Cria o acumulador embaixo da declaração de .data
-		ConversaoLib::codigoConvertido << "acc resw 2";
+		ConversaoLib::codigoConvertido << "acc: resw 2";
 		ConversaoLib::criouAcc = true;
 	}
+}
+
+int ConversaoLib::converteOperandoParaInteiro(std::string operando) {
+	return std::stoi(operando);
+}
+
+bool ConversaoLib::isOperandoNumeroInteiro(const std::string &str) {
+	return str.find_first_not_of("0123456789") == std::string::npos;
 }
