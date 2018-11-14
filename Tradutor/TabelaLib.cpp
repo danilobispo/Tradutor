@@ -19,11 +19,11 @@ std::map <std::string, InfoDeInstrucoes> TabelaLib::TabelaDeInstrucoes{
 { "store",{ 1,2,opcodes::STORE } },
 { "input",{ 1,2, opcodes::INPUT } },
 { "output",{ 1,2,opcodes::OUTPUT } },
+{ "stop",{ 0,1, opcodes::STOP } },
 { "c_input", {1,2, opcodes::C_INPUT} },
 { "c_output", {1,2, opcodes::C_OUTPUT} },
 { "s_input", {2,3, opcodes::S_INPUT} },
-{ "s_output", {2,3, opcodes::S_OUTPUT} },
-{ "stop",{ 0,1, opcodes::STOP } }
+{ "s_output", {2,3, opcodes::S_OUTPUT} }
 };
 
 //TODO: Adicionar if e equ

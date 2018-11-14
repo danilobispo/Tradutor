@@ -22,13 +22,16 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 
 	TabelaLib tabelaLib;
 	if (tabelaLib.isInstrucao(tokenDaLinha.operacao)) {
+		// TODO: Verificar se tem Label, se sim, colocar na instrução
 		std::cout << "Instrução \n";
 		InfoDeInstrucoes infoInstrucao = tabelaLib.getInstrucao(tokenDaLinha.operacao);
 		switch (infoInstrucao.opcodesInstrucoes)
 		{
 		case ADD:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteAdd(tokenDaLinha.operando[0]);
 			break;
 		case SUB:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteSub(tokenDaLinha.operando[0]);
 			break;
 		case MULT:
 			break;
@@ -54,6 +57,14 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 			break;
 		case STOP:
 			break;
+		case C_INPUT:
+			break;
+		case C_OUTPUT:
+			break;
+		case S_INPUT:
+			break;
+		case S_OUTPUT:
+			break;
 		}
 	}
 	else if (tabelaLib.isDiretiva(tokenDaLinha.operacao)) {
@@ -75,10 +86,13 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 			ConversaoLib::codigoConvertido << converteSpace(tokenDaLinha.label, tokenDaLinha.operando[0]);
 			break;
 		case CONST:
+			ConversaoLib::codigoConvertido << converteConst(tokenDaLinha.label, tokenDaLinha.operando[0]);
 			break;
 		case EQU:
+			ConversaoLib::codigoConvertido << converteEqu(tokenDaLinha.label, tokenDaLinha.operando[0]);
 			break;
 		case IF:
+			ConversaoLib::codigoConvertido << converteIf(tokenDaLinha.operando[0]);
 			break;
 		}
 	}
@@ -115,15 +129,54 @@ std::string ConversaoLib::converteSpace(std::string label, std::string operando)
 	return label + ": resd " + std::to_string(num);	
 }
 
+std::string ConversaoLib::converteConst(std::string label, std::string operando)
+{
+	int num;
+	if (isOperandoNumeroInteiro(operando)) { // Decimal
+		num = converteOperandoParaInteiro(operando);
+	}
+	else { // Hexadecimal
+		num = std::stoi(operando, nullptr, 16);
+	}
+
+	return label + ": dd " + std::to_string(num);
+}
+
+std::string ConversaoLib::converteEqu(std::string label, std::string operando)
+{
+	int num;
+	if (isOperandoNumeroInteiro(operando)) { // Decimal
+		num = converteOperandoParaInteiro(operando);
+	}
+	else { // Hexadecimal
+		num = std::stoi(operando, nullptr, 16);
+	}
+
+	return label + " equ " + std::to_string(num);
+}
+
+std::string ConversaoLib::converteIf(std::string operando) {
+	//TODO: Fazer esse método
+	return std::string();
+}
+
 // Função para debug 
 void ConversaoLib::showCodigoConvertido() {
 	std::cout << ConversaoLib::codigoConvertido.str();
 }
 
+std::string ConversaoLib::converteAdd(std::string operando){
+	return "add acc, " + operando;
+}
+
+std::string ConversaoLib::converteSub(std::string operando) {
+	return "sub acc, " + operando;
+}
+
 // Escreve no arquivo de saída a declaração do acumulador
-void ConversaoLib::criaAcumulador(std::string operacao) {
+void ConversaoLib::criaAcumulador(std::string dataOuBss) {
 	pulaLinhaDeCodigo();
-	if (isSectionData && (operacao == "data" || operacao == "bss")) {
+	if (isSectionData && (dataOuBss == "data" || dataOuBss == "bss")) {
 		// Cria o acumulador embaixo da declaração de .data
 		ConversaoLib::codigoConvertido << "acc: resw 2";
 		ConversaoLib::criouAcc = true;

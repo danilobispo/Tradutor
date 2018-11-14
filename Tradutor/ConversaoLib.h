@@ -18,18 +18,23 @@ public:
 	bool criouAcc;
 
 	std::stringstream codigoConvertido;
-	void verificaEConverteOperacao(std::string operacao);
 	void verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaLinha);
-	void criaAcumulador();
-	void criaAcumulador(std::string operacao);
+	void criaAcumulador(std::string dataOuBss);
 	int converteOperandoParaInteiro(std::string operando);
 	bool isOperandoNumeroInteiro(const std::string & str);	
 	void pulaLinhaDeCodigo();
 	void showCodigoConvertido();
-	void verificaInstrucao(std::string instrucao);
-	void verificaDiretiva(std::string diretiva);
-	void converteAdd();
+	
+	//Conversão de instruções
+	std::string converteAdd(std::string operando);
+
+	std::string converteSub(std::string operando);
+
+	// Conversão de diretivas
 	std::string converteSection(std::string operando);
 	std::string converteSpace(std::string label, std::string operando);
+	std::string converteConst(std::string label, std::string operando);
+	std::string converteEqu(std::string label, std::string operando);
+	std::string converteIf(std::string operando);
 };
 

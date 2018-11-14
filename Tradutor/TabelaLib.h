@@ -30,11 +30,11 @@ enum opcodes {
 	STORE,
 	INPUT,
 	OUTPUT,
+	STOP,
 	C_INPUT,
 	C_OUTPUT,
 	S_INPUT,
-	S_OUTPUT,
-	STOP
+	S_OUTPUT
 };
 
 enum diretivas {

@@ -1,5 +1,6 @@
 ;Programa que transforma um numero decimal
 ;a binario
+B: EQU 10
 SECTION TEXT
 INPUT OLD_DATA
 LOAD OLD_DATA
