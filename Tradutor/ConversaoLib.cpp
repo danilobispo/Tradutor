@@ -4,8 +4,6 @@
 
 ConversaoLib::ConversaoLib()
 {
-	// Inicializa a variável no construtor pois durante o loop ela pode assumir valores diferentes
-	isSectionData = false;
 }
 
 ConversaoLib::~ConversaoLib()
@@ -34,36 +32,52 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 			ConversaoLib::codigoConvertido << ConversaoLib::converteSub(tokenDaLinha.operando[0]);
 			break;
 		case MULT:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteMult(tokenDaLinha.operando[0]);
 			break;
 		case DIV:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteDiv(tokenDaLinha.operando[0]);
 			break;
 		case JMP:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteJmp(tokenDaLinha.operando[0]);
 			break;
 		case JMPN:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteJmpn(tokenDaLinha.operando[0]);
 			break;
 		case JMPP:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteJmpp(tokenDaLinha.operando[0]);
 			break;
 		case JMPZ:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteJmpz(tokenDaLinha.operando[0]);
 			break;
 		case COPY:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteCopy(tokenDaLinha.operando[0], tokenDaLinha.operando[1]);
 			break;
 		case LOAD:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteLoad(tokenDaLinha.operando[0]);
 			break;
 		case STORE:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteStore(tokenDaLinha.operando[0]);
 			break;
 		case INPUT:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteInput(tokenDaLinha.operando[0]);
 			break;
 		case OUTPUT:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteOutput(tokenDaLinha.operando[0]);
 			break;
 		case STOP:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteStop();
 			break;
 		case C_INPUT:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteCInput(tokenDaLinha.operando[0]);
 			break;
 		case C_OUTPUT:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteCOutput(tokenDaLinha.operando[0]);
 			break;
 		case S_INPUT:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteSInput(tokenDaLinha.operando[0], tokenDaLinha.operando[1]);
 			break;
 		case S_OUTPUT:
+			ConversaoLib::codigoConvertido << ConversaoLib::converteSOutput(tokenDaLinha.operando[0], tokenDaLinha.operando[1]);
 			break;
 		}
 	}
@@ -76,11 +90,7 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 		case SECTION:
 			// Em nenhum caso, section tem mais de um operando, logo o primeiro deve ser data, bss ou text
 			ConversaoLib::codigoConvertido << converteSection(tokenDaLinha.operando[0]);
-			// Verificamos se já podemos colocar o acumulador(Variável global responsável pela grande maioria das operações)
-			// Se a section .data já foi criada
-			if (!criouAcc) {
-				ConversaoLib::criaAcumulador(tokenDaLinha.operando[0]);
-			}
+			
 			break;
 		case SPACE:
 			ConversaoLib::codigoConvertido << converteSpace(tokenDaLinha.label, tokenDaLinha.operando[0]);
@@ -88,12 +98,14 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 		case CONST:
 			ConversaoLib::codigoConvertido << converteConst(tokenDaLinha.label, tokenDaLinha.operando[0]);
 			break;
-		case EQU:
+
+		// 19-11-2018: Casos abaixo removidos pois o programa deve ser pré-processado antes de ser traduzido
+		/*case EQU:
 			ConversaoLib::codigoConvertido << converteEqu(tokenDaLinha.label, tokenDaLinha.operando[0]);
 			break;
 		case IF:
 			ConversaoLib::codigoConvertido << converteIf(tokenDaLinha.operando[0]);
-			break;
+			break;*/
 		}
 	}
 	pulaLinhaDeCodigo();
@@ -109,9 +121,12 @@ std::string ConversaoLib::converteSection(std::string operando) {
 	if (operando == "text") {
 		return "section .text";
 	}
-	else if ((operando == "data" || operando == "bss") && !ConversaoLib::isSectionData) {
-		ConversaoLib::isSectionData = true;
+	else if (operando == "data") {
+		
 		return "section .data";
+	}
+	else if (operando == "bss") {
+		return "section .bss";
 	}
 	else return "";
 }
@@ -166,22 +181,30 @@ void ConversaoLib::showCodigoConvertido() {
 }
 
 std::string ConversaoLib::converteAdd(std::string operando){
-	return "add acc, " + operando;
+	return "add eax, " + operando;
 }
 
 std::string ConversaoLib::converteSub(std::string operando) {
-	return "sub acc, " + operando;
+	return "sub eax, " + operando;
+}
+
+std::string ConversaoLib::converteMult(std::string operando)
+{
+	//todo: Estender o sinal para edx antes de fazer a operação
+	//TODO: Implementar
+	return std::string();
 }
 
 // Escreve no arquivo de saída a declaração do acumulador
-void ConversaoLib::criaAcumulador(std::string dataOuBss) {
-	pulaLinhaDeCodigo();
-	if (isSectionData && (dataOuBss == "data" || dataOuBss == "bss")) {
-		// Cria o acumulador embaixo da declaração de .data
-		ConversaoLib::codigoConvertido << "acc: resw 2";
-		ConversaoLib::criouAcc = true;
-	}
-}
+//void ConversaoLib::criaAcumulador(std::string dataOuBss) {
+//	pulaLinhaDeCodigo();
+//	if (isSectionData && (dataOuBss == "data" || dataOuBss == "bss")) {
+//		// Cria o acumulador embaixo da declaração de .data
+//		ConversaoLib::codigoConvertido << "acc: resw 2";
+//		//19-11-18: Removido pois o acumulador é o próprio eax
+//		//ConversaoLib::criouAcc = true;
+//	}
+//}
 
 int ConversaoLib::converteOperandoParaInteiro(std::string operando) {
 	return std::stoi(operando);

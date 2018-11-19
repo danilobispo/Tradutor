@@ -14,8 +14,7 @@ public:
 	~ConversaoLib();
 
 	std::vector<Tokenizador::TokensDaLinha> tokensCodigo;
-	bool isSectionData;
-	bool criouAcc;
+	
 
 	std::stringstream codigoConvertido;
 	void verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaLinha);
@@ -27,8 +26,23 @@ public:
 	
 	//Conversão de instruções
 	std::string converteAdd(std::string operando);
-
 	std::string converteSub(std::string operando);
+	std::string converteMult(std::string operando);
+	std::string converteDiv(std::string operando);
+	std::string converteJmp(std::string operando);
+	std::string converteJmpn(std::string operando);
+	std::string converteJmpp(std::string operando);
+	std::string converteJmpz(std::string operando);
+	std::string converteCopy(std::string src, std::string dest);
+	std::string converteLoad(std::string operando);
+	std::string converteStore(std::string operando);
+	std::string converteInput(std::string operando);
+	std::string converteOutput(std::string operando);
+	std::string converteStop();
+	std::string converteCInput(std::string operando);
+	std::string converteCOutput(std::string operando);
+	std::string converteSInput(std::string operando, std::string size);
+	std::string converteSOutput(std::string operando, std::string size);
 
 	// Conversão de diretivas
 	std::string converteSection(std::string operando);

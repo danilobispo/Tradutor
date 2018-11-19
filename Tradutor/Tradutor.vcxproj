@@ -155,6 +155,7 @@
     <ClInclude Include="ErrorLib.h" />
     <ClInclude Include="ParseLib.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PreProcessamento.h" />
     <ClInclude Include="TabelaLib.h" />
     <ClInclude Include="Tokenizador.h" />
     <ClInclude Include="Tradutor.h" />
@@ -169,6 +170,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PreProcessamento.cpp" />
     <ClCompile Include="TabelaLib.cpp" />
     <ClCompile Include="Tokenizador.cpp" />
     <ClCompile Include="Tradutor.cpp" />

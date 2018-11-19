@@ -36,6 +36,9 @@
     <ClInclude Include="Tradutor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PreProcessamento.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -57,6 +60,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ConversaoLib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PreProcessamento.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
