@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <fstream>
 
 /* Classe responsável por obter a instrução e fazer o código em NASM correspondente */
 class ConversaoLib
@@ -14,16 +15,22 @@ public:
 	~ConversaoLib();
 
 	std::vector<Tokenizador::TokensDaLinha> tokensCodigo;
-	
-
 	std::stringstream codigoConvertido;
+	bool isSectionText;
+
+	void criarArquivoDeSaida();
+
 	void verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaLinha);
-	void criaAcumulador(std::string dataOuBss);
 	int converteOperandoParaInteiro(std::string operando);
 	bool isOperandoNumeroInteiro(const std::string & str);	
 	void pulaLinhaDeCodigo();
 	void showCodigoConvertido();
 	
+
+	void adicionaFuncoesEmText();
+	std::string adicionaSectionEVariaveisEmData();
+	std::string adicionaSectionEVariaveisEmBss();
+
 	//Conversão de instruções
 	std::string converteAdd(std::string operando);
 	std::string converteSub(std::string operando);

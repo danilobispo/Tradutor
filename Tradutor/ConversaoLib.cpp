@@ -4,12 +4,20 @@
 
 ConversaoLib::ConversaoLib()
 {
+	isSectionText = false;
 }
 
 ConversaoLib::~ConversaoLib()
 {
 }
 
+void ConversaoLib::criarArquivoDeSaida()
+{
+	std::ofstream arquivoSaida = std::ofstream("arquivo_saida.asm");
+	arquivoSaida << ConversaoLib::codigoConvertido.str();
+	arquivoSaida.close();
+
+}
 
 // Verifica o tipo de instrução e redireciona para o método mais adequado(diretiva ou instrução)
 // Feita apenas para facilitar o debug do projeto
@@ -21,10 +29,16 @@ void ConversaoLib::verificaEConverteOperacao(Tokenizador::TokensDaLinha tokenDaL
 	TabelaLib tabelaLib;
 	if (tabelaLib.isInstrucao(tokenDaLinha.operacao)) {
 		// TODO: Verificar se tem Label, se sim, colocar na instrução
+
+		
 		std::cout << "Instrução \n";
 		InfoDeInstrucoes infoInstrucao = tabelaLib.getInstrucao(tokenDaLinha.operacao);
+		// Insere label na frente de instruções
+		if (tokenDaLinha.label != "") {
+			ConversaoLib::codigoConvertido << tokenDaLinha.label + ": ";
+		}
 		switch (infoInstrucao.opcodesInstrucoes)
-		{
+		{	
 		case ADD:
 			ConversaoLib::codigoConvertido << ConversaoLib::converteAdd(tokenDaLinha.operando[0]);
 			break;
@@ -119,14 +133,22 @@ void ConversaoLib::pulaLinhaDeCodigo()
 // Converte a section com base no operando(TEXT, DATA ou BSS)
 std::string ConversaoLib::converteSection(std::string operando) {
 	if (operando == "text") {
-		return "section .text";
+		ConversaoLib::isSectionText = true;
+		return "section .text\nglobal _start\n _start:\n";
 	}
 	else if (operando == "data") {
-		
-		return "section .data";
+		if (ConversaoLib::isSectionText) {
+			adicionaFuncoesEmText();
+			ConversaoLib::isSectionText = false;
+		}
+		return adicionaSectionEVariaveisEmData();
 	}
 	else if (operando == "bss") {
-		return "section .bss";
+		if (ConversaoLib::isSectionText) {
+			adicionaFuncoesEmText();
+			ConversaoLib::isSectionText = false;
+		}
+		return adicionaSectionEVariaveisEmBss();
 	}
 	else return "";
 }
@@ -180,6 +202,30 @@ void ConversaoLib::showCodigoConvertido() {
 	std::cout << ConversaoLib::codigoConvertido.str();
 }
 
+void ConversaoLib::adicionaFuncoesEmText()
+{
+	std::ifstream arquivoAuxiliarText = std::ifstream("./Files/funcoes_aninhadas.asm");
+	ConversaoLib::codigoConvertido << arquivoAuxiliarText.rdbuf();
+	arquivoAuxiliarText.close();
+}
+
+std::string ConversaoLib::adicionaSectionEVariaveisEmData()
+{
+	std::string stringData = "section .data\n";
+	stringData.append("mensagemOverflow: db \"Overflow em multiplicacao!\", 26\n");
+	return stringData;
+}
+
+std::string ConversaoLib::adicionaSectionEVariaveisEmBss()
+{
+	std::string stringData = "section .bss\n";
+	stringData.append("response_saida resb 30\n");
+	stringData.append("response_size resd 2\n");
+	stringData.append("inteiro_tamanho resd 1\n");
+	stringData.append("inteiro_string resb 30\n");
+	return stringData;
+}
+
 std::string ConversaoLib::converteAdd(std::string operando){
 	return "add eax, " + operando;
 }
@@ -190,21 +236,95 @@ std::string ConversaoLib::converteSub(std::string operando) {
 
 std::string ConversaoLib::converteMult(std::string operando)
 {
-	//todo: Estender o sinal para edx antes de fazer a operação
-	//TODO: Implementar
-	return std::string();
+	//Supomos que eax já tem o operando 1(acc)
+	return "mov dword ebx, [" + operando + "] \nimul ebx \njo overflow";
 }
 
-// Escreve no arquivo de saída a declaração do acumulador
-//void ConversaoLib::criaAcumulador(std::string dataOuBss) {
-//	pulaLinhaDeCodigo();
-//	if (isSectionData && (dataOuBss == "data" || dataOuBss == "bss")) {
-//		// Cria o acumulador embaixo da declaração de .data
-//		ConversaoLib::codigoConvertido << "acc: resw 2";
-//		//19-11-18: Removido pois o acumulador é o próprio eax
-//		//ConversaoLib::criouAcc = true;
-//	}
-//}
+std::string ConversaoLib::converteDiv(std::string operando) {
+	//Supomos que eax já tem o operando 1(acc)
+	return "mov dword ebx, [" + operando + "] \nidiv ebx";
+}
+
+std::string ConversaoLib::converteJmp(std::string operando) {
+	return "jmp " + operando;
+}
+
+std::string ConversaoLib::converteJmpn(std::string operando) {
+	return "cmp eax, 0\njl " + operando;
+}
+
+std::string ConversaoLib::converteJmpp(std::string operando) {
+	return "cmp eax, 0\njg " + operando;
+}
+
+std::string ConversaoLib::converteJmpz(std::string operando) {
+	return "cmp eax, 0\nje " + operando;
+}
+
+std::string ConversaoLib::converteCopy(std::string src, std::string dest)
+{
+	std::string copyString = "";
+	copyString.append("push eax\n");
+	copyString.append("push ebx\n");
+	copyString.append("mov dword eax, " + src + "\n");
+	copyString.append("mov dword ebx, [" + dest + "]\n");
+	copyString.append("mov dword ebx, eax\n");
+	copyString.append("pop ebx\n");
+	copyString.append("pop eax\n");
+
+	return copyString;
+}
+
+std::string ConversaoLib::converteLoad(std::string operando)
+{
+	//ACC <- MEM[OP]
+	return "mov dword eax, " + operando;
+}
+
+std::string ConversaoLib::converteStore(std::string operando)
+{
+	//MEM[OP] <- ACC
+	return "mov dword [" + operando + "], eax";
+}
+
+std::string ConversaoLib::converteInput(std::string operando)
+{
+	std::string inputString = "";
+	inputString.append("push ecx \n"); 
+	inputString.append("push edx \n");
+	inputString.append("push eax \n");
+	inputString.append("push ebx \n");
+	inputString.append("mov ecx, " + operando +"\n");
+	inputString.append("mov edx, 12\n");
+	inputString.append("; Tamanho de inteiro é constante(10 para o número, 1 para o sinal e 1 para o '/n')\n");
+	inputString.append("call escrever_function_modificado\n");
+	inputString.append("mov esi, " + operando + " ; Guarda o valor de leitura da string em esi\n");
+	inputString.append("call converte_ascii_inteiro\n");
+	inputString.append("mov dword ["+operando+"], eax \n");
+	inputString.append("pop ebx\n");
+	inputString.append("pop eax\n");
+	inputString.append("pop edx\n");
+	inputString.append("pop ecx\n");
+
+	return inputString;
+}
+
+std::string ConversaoLib::converteOutput(std::string operando)
+{
+	std::string outputString = "";
+	outputString.append("push eax\n");
+	outputString.append("push ebx\n");
+	outputString.append("push ecx\n");
+	outputString.append("push edx\n");
+	outputString.append("mov dword eax, ["+operando+"]\n");
+	outputString.append("call converte_int_para_string\n");
+	outputString.append("pop edx\n");
+	outputString.append("pop ecx\n");
+	outputString.append("pop ebx\n");
+	outputString.append("pop eax\n");
+
+	return outputString;
+}
 
 int ConversaoLib::converteOperandoParaInteiro(std::string operando) {
 	return std::stoi(operando);
@@ -212,4 +332,75 @@ int ConversaoLib::converteOperandoParaInteiro(std::string operando) {
 
 bool ConversaoLib::isOperandoNumeroInteiro(const std::string &str) {
 	return str.find_first_not_of("0123456789") == std::string::npos;
+}
+
+std::string ConversaoLib::converteStop()
+{
+	return "jmp sair";
+}
+
+std::string ConversaoLib::converteCInput(std::string operando)
+{
+	std::string inputChar = "";
+	inputChar.append("; c_input\n");
+	inputChar.append("; Printa apenas um char\n");
+	inputChar.append("; Supondo que está em ASCII\n");
+	inputChar.append("; ex: C_INPUT A\n");
+	inputChar.append("; ecx = a e edx = 1, já que é apenas um char em ASCII\n");
+	inputChar.append("push ecx\n");
+	inputChar.append("push edx\n");
+	inputChar.append("mov ecx,"+operando+"\n");
+	inputChar.append("mov edx, 1\n");
+	inputChar.append("call escrever_function\n");
+	inputChar.append("pop edx\n");
+	inputChar.append("pop ecx\n");
+
+	return inputChar;
+}
+
+std::string ConversaoLib::converteCOutput(std::string operando)
+{
+	std::string outputChar = "";	
+	outputChar.append("; c_output\n");
+	outputChar.append("; Printa apenas um char\n");
+	outputChar.append("; Supondo que está em ASCII\n");
+	outputChar.append("; ex: C_OUTPUT A\n");
+	outputChar.append("; ecx = a e edx = 1, já que é apenas um char em ASCII\n");
+	outputChar.append("push ecx\n");
+	outputChar.append("push edx\n");
+	outputChar.append("mov ecx, "+operando+"\n");
+	outputChar.append("mov edx, 1\n");
+	outputChar.append("call print_function\n");
+	outputChar.append("pop edx\n");
+	outputChar.append("pop ecx\n");
+	return outputChar;
+}
+
+std::string ConversaoLib::converteSInput(std::string operando, std::string size)
+{
+	std::string sInput = "";
+	sInput.append("push ecx\n");
+	sInput.append("push edx\n");
+	sInput.append("mov ecx, "+operando+"\n");
+	sInput.append("mov edx, "+size+"\n");
+	sInput.append("call escrever_function\n");
+	sInput.append("pop edx\n");
+	sInput.append("pop ecx\n");
+
+	return sInput;
+}
+
+std::string ConversaoLib::converteSOutput(std::string operando, std::string size)
+{
+	std::string oOutput = "";
+	oOutput.append("push ecx\n");
+	oOutput.append("push edx\n");
+	oOutput.append("mov ecx, "+operando+"\n");
+	oOutput.append("mov edx, "+size+"\n");
+	oOutput.append("call print_function\n");
+	oOutput.append("pop edx\n");
+	oOutput.append("pop ecx\n");
+
+	return oOutput;
+
 }
