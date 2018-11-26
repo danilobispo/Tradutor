@@ -6,29 +6,57 @@ push ecx
 push edx 
 push eax 
 push ebx 
-mov ecx, a
+mov ecx, old_data
 mov edx, 12
 ; Tamanho de inteiro é constante(10 para o número, 1 para o sinal e 1 para o '/n')
 call escrever_function_modificado
-mov esi, a ; Guarda o valor de leitura da string em esi
+mov esi, old_data ; Guarda o valor de leitura da string em esi
 call converte_ascii_inteiro
-mov dword [a], eax 
+mov dword [old_data], eax 
 pop ebx
 pop eax
 pop edx
 pop ecx
 
+mov eax, [old_data]
+l1: mov ebx, dword [dois] 
+idiv ebx
+push eax 
+pop dword [new_data]
+
+mov ebx, dword [dois] 
+imul ebx 
+jo overflow
+push eax 
+pop dword [tmp_data]
+
+mov eax, [old_data]
+sub eax, dword [tmp_data]
+push eax 
+pop dword [tmp_data]
+
 push eax
 push ebx
 push ecx
 push edx
-mov dword eax, [a]
+mov dword eax, [tmp_data]
 call converte_int_para_string
 pop edx
 pop ecx
 pop ebx
 pop eax
 
+push eax
+push ebx
+mov eax, [new_data]
+mov [old_data], eax
+pop ebx
+pop eax
+
+mov eax, [old_data]
+cmp eax, 0
+jg l1
+jmp sair
 sair: 
 	mov eax, 1
 	mov ebx, 0
@@ -181,13 +209,16 @@ overflow:
 	mov edx, 26
 	call print_function
 	jmp sair
+section .data
+mensagemOverflow: db "Overflow em multiplicacao!", 26
+
+dois: dd 2
 section .bss
 response_saida resb 30
 response_size resd 2
 inteiro_tamanho resd 1
 inteiro_string resb 30
 
-a: resd 1
-section .data
-mensagemOverflow: db "Overflow em multiplicacao!", 26
-
+old_data: resd 1
+new_data: resd 1
+tmp_data: resd 1

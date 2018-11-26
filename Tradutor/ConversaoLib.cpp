@@ -227,22 +227,22 @@ std::string ConversaoLib::adicionaSectionEVariaveisEmBss()
 }
 
 std::string ConversaoLib::converteAdd(std::string operando){
-	return "add eax, " + operando;
+	return "add eax, dword[" + operando+"]";
 }
 
 std::string ConversaoLib::converteSub(std::string operando) {
-	return "sub eax, " + operando;
+	return "sub eax, dword [" + operando + "]";
 }
 
 std::string ConversaoLib::converteMult(std::string operando)
 {
 	//Supomos que eax já tem o operando 1(acc)
-	return "mov dword ebx, [" + operando + "] \nimul ebx \njo overflow";
+	return "mov ebx, dword [" + operando + "] \nimul ebx \njo overflow";
 }
 
 std::string ConversaoLib::converteDiv(std::string operando) {
 	//Supomos que eax já tem o operando 1(acc)
-	return "mov dword ebx, [" + operando + "] \nidiv ebx";
+	return "mov ebx, dword [" + operando + "] \nidiv ebx";
 }
 
 std::string ConversaoLib::converteJmp(std::string operando) {
@@ -266,9 +266,8 @@ std::string ConversaoLib::converteCopy(std::string src, std::string dest)
 	std::string copyString = "";
 	copyString.append("push eax\n");
 	copyString.append("push ebx\n");
-	copyString.append("mov dword eax, " + src + "\n");
-	copyString.append("mov dword ebx, [" + dest + "]\n");
-	copyString.append("mov dword ebx, eax\n");
+	copyString.append("mov eax, [" + src + "]\n");
+	copyString.append("mov ["+dest+"], eax\n");
 	copyString.append("pop ebx\n");
 	copyString.append("pop eax\n");
 
@@ -278,13 +277,16 @@ std::string ConversaoLib::converteCopy(std::string src, std::string dest)
 std::string ConversaoLib::converteLoad(std::string operando)
 {
 	//ACC <- MEM[OP]
-	return "mov dword eax, " + operando;
+	return "mov eax, [" + operando + "]";
 }
 
 std::string ConversaoLib::converteStore(std::string operando)
 {
 	//MEM[OP] <- ACC
-	return "mov dword [" + operando + "], eax";
+	std::string storeString = "";
+	storeString.append("push eax \n");
+	storeString.append("pop dword ["+operando+"]\n");
+	return storeString;
 }
 
 std::string ConversaoLib::converteInput(std::string operando)
